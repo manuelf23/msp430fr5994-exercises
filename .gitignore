@@ -50,3 +50,17 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+exercise_2/Debug/
+
+exercise_2/targetConfigs/
+
+exercise_2/.settings/
+
+exercise_2/.launches/
+
+exercise_2/.ccsproject
+
+exercise_2/.cproject
+
+exercise_2/.project
