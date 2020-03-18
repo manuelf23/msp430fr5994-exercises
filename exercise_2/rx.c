@@ -16,8 +16,9 @@ void rx_init(rx_control_t *rcp, timer_control_t *tcp)
     rcp->rx_vaciado = 0;
     rcp->rx_vaciado = 0;
     rcp->banderas = 0x00;
+    rcp->xonoff_flag = XOFF;
 
-    Timer_setup_TO(rcp->tcp, TMOUT_0, 1600); //setear timeout
+    Timer_setup_TO(rcp->tcp, TMOUT_0, 1600*4); //setear timeout
 
     //-------------------------------------------------------------------------
     //------------------------- UART1 Config (9600) ---------------------------
@@ -53,8 +54,8 @@ void rx_process(rx_control_t *rcp)
     __no_operation();
     if((UCA3IFG & UCRXIFG) !=0)
     {
-        Timer_setup_TO(rcp->tcp, TMOUT_0, 1600); //setear timeout 1600-> 10s
-        UCA3TXBUF = UCA3RXBUF;
+        Timer_setup_TO(rcp->tcp, TMOUT_0, 1600*4); //setear timeout 1600-> 10s
+        //UCA3TXBUF = UCA3RXBUF;
         rcp->banderas = 0x00;
 
         rcp->rx_buffer[rcp->rx_llenado] = UCA3RXBUF;
@@ -67,21 +68,23 @@ void rx_process(rx_control_t *rcp)
 
     }
 
-   /*if(rcp->rx_uso >= HWM)
+   if(rcp->rx_uso >= HWM && rcp->xonoff_flag == XON)
     {
         //mande un XOFF
+        rcp->xonoff_flag = XOFF;
         UCA3TXBUF = XOFF;
     }
-    if(rcp->rx_uso <= LWM)
+    if(rcp->rx_uso <= LWM && rcp->xonoff_flag == XOFF)
     {
         //mande un XON
+        rcp->xonoff_flag = XON;
         UCA3TXBUF = XON;
     }
 
     if(Timer_Consulta_TO(rcp->tcp, TMOUT_0))
     {
         rcp->banderas = 0x01;
-    }*/
+    }
 
 }
 

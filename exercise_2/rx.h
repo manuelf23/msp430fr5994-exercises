@@ -11,8 +11,8 @@
 #include <msp430.h>
 
 #define DATOS_RX_BUFFER_TAMANO  16
-#define XON                     0x13
-#define XOFF                    0x11
+#define XON                     0x11
+#define XOFF                    0x13
 #define HWM                     11
 #define LWM                     4
 #define TMOUT_0                 0
@@ -29,6 +29,7 @@ struct rx_control_t
     unsigned char rx_llenado;
     unsigned char rx_vaciado;
     unsigned char rx_buffer[DATOS_RX_BUFFER_TAMANO];
+    unsigned char xonoff_flag;
 };
 
 void rx_init(rx_control_t *rcp, timer_control_t *tcp);

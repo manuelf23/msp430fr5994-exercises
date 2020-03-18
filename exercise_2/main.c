@@ -39,8 +39,9 @@ void main(void) {
     while(1)
     {
         Timer_Process(&tcp);
+        rx_process(&rcp);
         datos_process(&dcp);
         display_process(&dycp);
-        rx_process(&rcp);
+
     }
 }

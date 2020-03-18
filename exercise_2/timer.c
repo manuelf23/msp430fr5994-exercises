@@ -10,8 +10,8 @@ void Timer_init(timer_control_t *tcp)
 {
     char n;
     TA0CCTL0 = 0x00;
-    TA0CCR0 = 50000;
-    TA0CTL = TASSEL__SMCLK | MC__UP;
+    TA0CCR0 = 12500; //8.000.000/(160*4)
+    TA0CTL = TASSEL__SMCLK | MC__UP; //0x0200 | 0x0010 -> 0x210 ->  0010 0001 0000
     tcp->tp_c = TIMER_TAMANO_TP;
     tcp->to_c = TIMER_TAMANO_TO;
 
@@ -40,7 +40,7 @@ void Timer_Process(timer_control_t *tcp)//Interfaz del main
         if (tcp->tp[n].banderas & TIMER_ACTIVO)
         {
             tcp->tp[n].contador --;
-            if ( !(tcp->tp[n].contador) )
+            if ( (tcp->tp[n].contador)==0 )
             {
                 tcp->tp[n].banderas |= TIMER_FINALIZADO;
                 tcp->tp[n].contador = tcp->tp[n].valor;

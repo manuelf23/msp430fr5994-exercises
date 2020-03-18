@@ -16,8 +16,8 @@
 
 #define DATOS_RX_BUFFER_TAMANO  16
 #define TIMER_1                 1
-#define TIMOUT_1                 0
-#define TIMOUT_2                 1
+#define TIMOUT_1                 1
+#define TIMOUT_2                 2
 
 #define PESO                    0x00 // se muestra sin complemento
 #define ANDP                    0x01 // se complementa a1

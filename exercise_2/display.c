@@ -13,7 +13,7 @@ void display_init(dy_control_t *dycp, timer_control_t *tcp)
     dycp->contador = 0;
     dycp->valor_display = 16;
 
-    Timer_setup_TP(dycp->tcp, TIMER_0, 2); //timer para refresco de display + 80Hz
+    Timer_setup_TP(dycp->tcp, TIMER_0, 1); //timer para refresco de display + 80Hz
 
 }
 
@@ -23,7 +23,7 @@ void display_process(dy_control_t *dycp)
     //P3OUT &= ~0x5B;
    if (Timer_Consulta_TP(dycp->tcp, TIMER_0))
     {
-        if (dycp->contador == 4)
+        if (dycp->contador == 10)
         {
             dycp->contador = 0;
         }
@@ -31,26 +31,6 @@ void display_process(dy_control_t *dycp)
         switch(dycp->intensidad)
            {
                case 1:
-                   if(dycp->contador <= 1)
-                   {
-                       P3OUT = ~(d_tabla[dycp->valor_display]);
-                   }
-                   else
-                   {
-                       P3OUT = ~(0x00);
-                   }
-                   break;
-               case 2:
-                   if(dycp->contador <= 2)
-                   {
-                       P3OUT = ~(d_tabla[dycp->valor_display]);
-                   }
-                   else
-                   {
-                       P3OUT = ~(0x00);
-                   }
-                   break;
-               case 3:
                    if(dycp->contador <= 3)
                    {
                        P3OUT = ~(d_tabla[dycp->valor_display]);
@@ -60,8 +40,28 @@ void display_process(dy_control_t *dycp)
                        P3OUT = ~(0x00);
                    }
                    break;
+               case 2:
+                   if(dycp->contador <= 5)
+                   {
+                       P3OUT = ~(d_tabla[dycp->valor_display]);
+                   }
+                   else
+                   {
+                       P3OUT = ~(0x00);
+                   }
+                   break;
+               case 3:
+                   if(dycp->contador <= 7)
+                   {
+                       P3OUT = ~(d_tabla[dycp->valor_display]);
+                   }
+                   else
+                   {
+                       P3OUT = ~(0x00);
+                   }
+                   break;
                case 4:
-                   if(dycp->contador <= 4)
+                   if(dycp->contador <= 10)
                    {
                        P3OUT = ~(d_tabla[dycp->valor_display]);
                    }
