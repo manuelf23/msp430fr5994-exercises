@@ -11,7 +11,8 @@ void xmodem_init(xmodem_control_t *xmodem, timer_control_t *tcp, rx_control_t *r
     xmodem->rcp = rcp;
     xmodem->dcp = dcp;
     xmodem->ffpaquete = 0;
-
+    xmodem->p_duplicado = 0;
+    xmodem->secuencia = 0;
     xmodem->state = INI_CON;
     xmodem->contador_errores = 0;
     xmodem->ffpaquete = 0; //flag fin de paquete
@@ -71,12 +72,23 @@ void xmodem_process(xmodem_control_t *xmodem)
             }
             else if (xmodem_paquete_valido(xmodem) == VALIDO)
             {
-                datos_copiar_paquete(xmodem->dcp, &xmodem->xmodem_buffer[3]);
-                xmodem->contador_errores = 0;
-                xmodem->buffer_uso = 0;
-                xmodem->buffer_llenado = 0;
-                xmodem->buffer_vaciado = 0;
-                xmodem->state = ESPERA_PDATOS;
+                if(xmodem->p_duplicado)
+                {
+                    rx_enviar(ACK);
+                    xmodem->p_duplicado = 0;
+                    Timer_setup_TO(xmodem->tcp, TIMEOUT_0, T10S);
+                    xmodem->state = RESPUESTA;
+
+                }
+                else
+                {
+                    datos_copiar_paquete(xmodem->dcp, &xmodem->xmodem_buffer[3]);
+                    xmodem->contador_errores = 0;
+                    xmodem->buffer_uso = 0;
+                    xmodem->buffer_llenado = 0;
+                    xmodem->buffer_vaciado = 0;
+                    xmodem->state = ESPERA_PDATOS;
+                }
             }
             else
             {
@@ -104,6 +116,7 @@ void xmodem_process(xmodem_control_t *xmodem)
                 xmodem->state = INI_CON;
                 break;
             }
+
 
             if(rx_dato_disponible(xmodem->rcp))
             {
@@ -145,6 +158,14 @@ char xmodem_paquete_valido(xmodem_control_t *xmodem)
     {
         seq = xmodem->xmodem_buffer[1];
         seq_a = 255 - seq;
+        if(seq == xmodem->secuencia)
+        {
+            xmodem->p_duplicado = 1;
+        }
+        else
+        {
+            xmodem->secuencia = seq;
+        }
         if(seq_a  == xmodem->xmodem_buffer[2])
         {
          csum  = xmodem->xmodem_buffer[131];
@@ -168,6 +189,7 @@ char xmodem_paquete_valido(xmodem_control_t *xmodem)
 
 void xmodem_guardar_dato(xmodem_control_t *xmodem, char dato)
 {
+
     xmodem->xmodem_buffer[xmodem->buffer_llenado] = dato;
     xmodem->buffer_uso ++;
     xmodem->buffer_llenado ++;
