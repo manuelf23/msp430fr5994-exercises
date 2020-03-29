@@ -48,9 +48,12 @@ void datos_process(datos_control_t *dcp)
 void datos_copiar_paquete(datos_control_t *dcp, unsigned char *paquete)
 {
     char a;
-    for(a = 4; a < DATOS_DATOS_BUFFER_TAMANO; a ++)
+    unsigned char *puntero;
+    puntero = paquete;
+    for(a = 0; a < 128; a ++)
         {
-            dcp->datos_buffer[dcp->buffer_llenado] = paquete[a];
+            dcp->datos_buffer[dcp->buffer_llenado] = *puntero;
+            puntero ++;
             dcp->buffer_uso ++;
             dcp->buffer_llenado ++;
             if(dcp->buffer_llenado == DATOS_DATOS_BUFFER_TAMANO)
@@ -58,11 +61,14 @@ void datos_copiar_paquete(datos_control_t *dcp, unsigned char *paquete)
                 dcp->buffer_llenado = 0;
             }
         }
+    __no_operation();
 }
 char datos_esta_libre(datos_control_t *dcp)
 {
-    if(dcp->buffer_uso == 0)
+    __no_operation();
+    if(dcp->buffer_uso <= 128 )
     {
+        __no_operation();
         return 1;
     }
     return 0;

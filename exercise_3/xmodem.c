@@ -34,11 +34,11 @@ void xmodem_process(xmodem_control_t *xmodem)
 
         case CONX_VALIDA: // ESTADO 1
             //char dato_rx;
-            /*if(rx_dato_disponible(xmodem->rcp))
+            if(rx_dato_disponible(xmodem->rcp))
             {
                 dato_rx = rx_leer_dato(xmodem->rcp);
-            }*/
-            dato_rx = rx_leer_dato(xmodem->rcp);
+            }
+            //dato_rx = rx_leer_dato(xmodem->rcp);
 
             if (dato_rx == SOH)
             {
@@ -53,21 +53,25 @@ void xmodem_process(xmodem_control_t *xmodem)
                 break;
         case VALIDACION: // ESTADO 2
             __no_operation();
-            if(xmodem->buffer_uso < DATOS_XMODEM_BUFFER_TAMANO )
+
+            if(xmodem->buffer_uso < DATOS_XMODEM_BUFFER_TAMANO)
             {
-                /*if(rx_dato_disponible(xmodem->rcp))
-                {
-                    dato_rx = rx_leer_dato(xmodem->rcp);
-                    xmodem_guardar_dato(xmodem, dato_rx);
-                }*/
-                dato_rx = rx_leer_dato(xmodem->rcp);
-                xmodem_guardar_dato(xmodem, dato_rx);
+
+                        if(rx_dato_disponible(xmodem->rcp))
+                        {
+                            dato_rx = rx_leer_dato(xmodem->rcp);
+                            xmodem_guardar_dato(xmodem, dato_rx);
+                        }
+
+                        //dato_rx = rx_leer_dato(xmodem->rcp);
+                        //xmodem_guardar_dato(xmodem, dato_rx);
+
 
 
             }
             else if (xmodem_paquete_valido(xmodem) == VALIDO)
             {
-                datos_copiar_paquete(xmodem->dcp, &xmodem->xmodem_buffer[0]);
+                datos_copiar_paquete(xmodem->dcp, &xmodem->xmodem_buffer[3]);
                 xmodem->contador_errores = 0;
                 xmodem->buffer_uso = 0;
                 xmodem->buffer_llenado = 0;
@@ -101,12 +105,12 @@ void xmodem_process(xmodem_control_t *xmodem)
                 break;
             }
 
-            /*if(rx_dato_disponible(xmodem->rcp))
+            if(rx_dato_disponible(xmodem->rcp))
             {
                 dato_rx = rx_leer_dato(xmodem->rcp);
 
-            }*/
-            dato_rx = rx_leer_dato(xmodem->rcp);
+            }
+            //dato_rx = rx_leer_dato(xmodem->rcp);
             if (dato_rx == SOH)
             {
                 xmodem_guardar_dato(xmodem, dato_rx);
@@ -136,16 +140,16 @@ void xmodem_process(xmodem_control_t *xmodem)
 }
 char xmodem_paquete_valido(xmodem_control_t *xmodem)
 {
-    char a=0;
+    char a, csum, csum_calculado, seq, seq_a;
     if(xmodem->xmodem_buffer[0] == SOH)
     {
-        char seq = xmodem->xmodem_buffer[1];
-        char seq_a = 255 - seq;
+        seq = xmodem->xmodem_buffer[1];
+        seq_a = 255 - seq;
         if(seq_a  == xmodem->xmodem_buffer[2])
         {
-         char csum  = xmodem->xmodem_buffer[132];
-         char csum_calculado=0;
-         for(a = 4; a < DATOS_XMODEM_BUFFER_TAMANO - 1; a ++)
+         csum  = xmodem->xmodem_buffer[131];
+         csum_calculado=0;
+         for(a = 3; a < DATOS_XMODEM_BUFFER_TAMANO - 1 ; a ++)
          {
              csum_calculado += xmodem->xmodem_buffer[a];
          }
@@ -159,7 +163,7 @@ char xmodem_paquete_valido(xmodem_control_t *xmodem)
         }
 
     }
-    return VALIDO;
+    return 0;
 }
 
 void xmodem_guardar_dato(xmodem_control_t *xmodem, char dato)

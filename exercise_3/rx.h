@@ -19,10 +19,10 @@ struct rx_control_t
 {
 
 
-    unsigned char rx_tamano;
-    unsigned char rx_uso;
-    unsigned char rx_llenado;
-    unsigned char rx_vaciado;
+    unsigned int rx_tamano;
+    unsigned int rx_uso;
+    unsigned int rx_llenado;
+    unsigned int rx_vaciado;
     unsigned char rx_buffer[DATOS_RX_BUFFER_TAMANO];
 };
 
