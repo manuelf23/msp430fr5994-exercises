@@ -61,6 +61,7 @@ void datos_copiar_paquete(datos_control_t *dcp, unsigned char *paquete)
                 dcp->buffer_llenado = 0;
             }
         }
+    __no_operation();
 }
 char datos_esta_libre(datos_control_t *dcp)
 {

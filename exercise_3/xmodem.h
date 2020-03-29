@@ -19,7 +19,7 @@
 #define ESPERA_PDATOS   3
 #define RESPUESTA       4
 
-#define DATOS_XMODEM_BUFFER_TAMANO  133
+#define DATOS_XMODEM_BUFFER_TAMANO  132
 
 #define NO_VALIDO       0X00
 #define VALIDO          0X01
