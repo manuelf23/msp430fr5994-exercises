@@ -34,11 +34,11 @@ void xmodem_process(xmodem_control_t *xmodem)
 
         case CONX_VALIDA: // ESTADO 1
             //char dato_rx;
-            /*if(rx_dato_disponible(xmodem->rcp))
+            if(rx_dato_disponible(xmodem->rcp))
             {
                 dato_rx = rx_leer_dato(xmodem->rcp);
-            }*/
-            dato_rx = rx_leer_dato(xmodem->rcp);
+            }
+            //dato_rx = rx_leer_dato(xmodem->rcp);
 
             if (dato_rx == SOH)
             {
@@ -55,13 +55,18 @@ void xmodem_process(xmodem_control_t *xmodem)
             __no_operation();
             if(xmodem->buffer_uso < DATOS_XMODEM_BUFFER_TAMANO )
             {
-                /*if(rx_dato_disponible(xmodem->rcp))
+                if(rx_dato_disponible(xmodem->rcp))
                 {
                     dato_rx = rx_leer_dato(xmodem->rcp);
                     xmodem_guardar_dato(xmodem, dato_rx);
-                }*/
-                dato_rx = rx_leer_dato(xmodem->rcp);
-                xmodem_guardar_dato(xmodem, dato_rx);
+                }
+                else if(xmodem->buffer_uso == 1)
+                {
+                    __no_operation();
+                }
+                //dato_rx = rx_leer_dato(xmodem->rcp);
+                //xmodem_guardar_dato(xmodem, dato_rx);
+                __no_operation();
 
 
             }
@@ -101,12 +106,12 @@ void xmodem_process(xmodem_control_t *xmodem)
                 break;
             }
 
-            /*if(rx_dato_disponible(xmodem->rcp))
+            if(rx_dato_disponible(xmodem->rcp))
             {
                 dato_rx = rx_leer_dato(xmodem->rcp);
 
-            }*/
-            dato_rx = rx_leer_dato(xmodem->rcp);
+            }
+            //dato_rx = rx_leer_dato(xmodem->rcp);
             if (dato_rx == SOH)
             {
                 xmodem_guardar_dato(xmodem, dato_rx);
