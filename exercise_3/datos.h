@@ -12,7 +12,7 @@
 #include <timer.h>
 #include <display.h>
 
-#define DATOS_DATOS_BUFFER_TAMANO  128
+#define DATOS_DATOS_BUFFER_TAMANO  128*2
 #define TIMER_1                 1
 #define TIMEOUT_1               1
 
@@ -27,9 +27,9 @@ struct datos_control_t
     unsigned char dato_mostrar;
     unsigned char flag_2hz;
 
-    unsigned char buffer_uso;
-    unsigned char buffer_llenado;
-    unsigned char buffer_vaciado;
+    int buffer_uso;
+    unsigned int buffer_llenado;
+    unsigned int buffer_vaciado;
     unsigned char datos_buffer[DATOS_DATOS_BUFFER_TAMANO];
 };
 
