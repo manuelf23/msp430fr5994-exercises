@@ -33,6 +33,7 @@ void display_process(dy_control_t *dycp)
     //P3OUT &= ~0x5B;
    if (Timer_Consulta_TP(dycp->tcp, TIMER_0) != 0)
     {
+       __no_operation();
         if (dycp->num_display == 3)
         {
             dycp->num_display = 0;
@@ -130,9 +131,19 @@ void display_process(dy_control_t *dycp)
 
 void display_mostrar(dy_control_t *dycp, unsigned char val)
 {
-    dycp->valor_display_A = val / 100;
-    dycp->valor_display_B = (val - (dycp->valor_display_A * 100)) / 10;
-    dycp->valor_display_C = (val - (dycp->valor_display_A * 100) - (dycp->valor_display_B * 10));
+    if(val != '-')
+    {
+        dycp->valor_display_A = val / 100;
+        dycp->valor_display_B = (val - (dycp->valor_display_A * 100)) / 10;
+        dycp->valor_display_C = (val - (dycp->valor_display_A * 100) - (dycp->valor_display_B * 10));
+    }
+    else
+    {
+        dycp->valor_display_A = 16;
+        dycp->valor_display_B = 16;
+        dycp->valor_display_C = 16;
+        display_camb_blink(dycp, NO_BLINK);
+    }
 
 }
 

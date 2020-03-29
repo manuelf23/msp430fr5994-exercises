@@ -1,14 +1,18 @@
 #include <msp430.h> 
 #include <timer.h>
 #include <display.h>
+#include <datos.h>
+#include <rx.h>
+#include <xmodem.h>
 
 /**
  * main.c
  */
 timer_control_t tcp;
-//datos_control_t dcp;
-//rx_control_t rcp;
+datos_control_t dcp;
+rx_control_t rcp;
 dy_control_t dycp;
+xmodem_control_t xmodem;
 
 void main(void)
 {
@@ -23,14 +27,16 @@ void main(void)
 
     Timer_init(&tcp);
     display_init(&dycp, &tcp);
-    //rx_init(&rcp, &tcp);
-    //datos_init(&dcp, &tcp, &rcp, &dycp);
+    rx_init(&rcp);
+    datos_init(&dcp, &tcp, &dycp);
+    xmodem_init(&xmodem, &tcp, &rcp , &dcp);
 
 	while(1)
 	{
 	    Timer_Process(&tcp);
-	    display_process(&dycp);
-	    display_mostrar(&dycp, 188);
-	    display_camb_blink(&dycp, BLINK_2HZ);
+	    rx_process(&rcp);
+        xmodem_process(&xmodem);
+        datos_process(&dcp);
+        display_process(&dycp);
 	}
 }
