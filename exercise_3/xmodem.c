@@ -53,26 +53,26 @@ void xmodem_process(xmodem_control_t *xmodem)
                 break;
         case VALIDACION: // ESTADO 2
             __no_operation();
-            if(xmodem->buffer_uso < DATOS_XMODEM_BUFFER_TAMANO )
+            if(xmodem->buffer_uso < DATOS_XMODEM_BUFFER_TAMANO - 1)
             {
-                if(rx_dato_disponible(xmodem->rcp))
-                {
-                    dato_rx = rx_leer_dato(xmodem->rcp);
-                    xmodem_guardar_dato(xmodem, dato_rx);
-                }
-                else if(xmodem->buffer_uso == 1)
-                {
-                    __no_operation();
-                }
-                //dato_rx = rx_leer_dato(xmodem->rcp);
-                //xmodem_guardar_dato(xmodem, dato_rx);
-                __no_operation();
+                        if(rx_dato_disponible(xmodem->rcp))
+                        {
+                            dato_rx = rx_leer_dato(xmodem->rcp);
+                            xmodem_guardar_dato(xmodem, dato_rx);
+                        }
+                        else if(xmodem->buffer_uso == 132)
+                        {
+                            __no_operation();
+                        }
+                        //dato_rx = rx_leer_dato(xmodem->rcp);
+                        //xmodem_guardar_dato(xmodem, dato_rx);
+                        __no_operation();
 
 
             }
             else if (xmodem_paquete_valido(xmodem) == VALIDO)
             {
-                datos_copiar_paquete(xmodem->dcp, &xmodem->xmodem_buffer[0]);
+                datos_copiar_paquete(xmodem->dcp, &xmodem->xmodem_buffer[4]);
                 xmodem->contador_errores = 0;
                 xmodem->buffer_uso = 0;
                 xmodem->buffer_llenado = 0;
