@@ -44,6 +44,8 @@ struct xmodem_control_t
     datos_control_t *dcp;
 
     unsigned char state;
+    unsigned char secuencia;
+    unsigned char p_duplicado;
     unsigned char contador_errores;
     unsigned char ffpaquete; //flag fin de paquete
 
