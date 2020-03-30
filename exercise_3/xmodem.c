@@ -44,6 +44,7 @@ void xmodem_process(xmodem_control_t *xmodem)
             if (dato_rx == SOH)
             {
                 xmodem_guardar_dato(xmodem, dato_rx);
+                Timer_setup_TO(xmodem->tcp, TIMEOUT_0, TM1S);
                 xmodem->ffpaquete = 0;
                 xmodem->state = VALIDACION;
             }
@@ -55,14 +56,24 @@ void xmodem_process(xmodem_control_t *xmodem)
         case VALIDACION: // ESTADO 2
             __no_operation();
 
-            if(xmodem->buffer_uso < DATOS_XMODEM_BUFFER_TAMANO)
+            if(xmodem->buffer_uso < DATOS_XMODEM_BUFFER_TAMANO) // este if valida si NO esta lleno el buffer
             {
+                // si entra va llenando el buffer
 
                         if(rx_dato_disponible(xmodem->rcp))
                         {
                             dato_rx = rx_leer_dato(xmodem->rcp);
                             xmodem_guardar_dato(xmodem, dato_rx);
+                            Timer_setup_TO(xmodem->tcp, TIMEOUT_0, TM1S);
                         }
+                        else if(Timer_Consulta_TO(xmodem->tcp, TIMEOUT_0)) // No llego ni SOH ni EOT
+                        {
+                            xmodem->state = RESPUESTA;
+                            rx_enviar(NAK);
+                            Timer_setup_TO(xmodem->tcp, TIMEOUT_0, T10S);
+                            xmodem->contador_errores ++;
+
+                        };
 
                         //dato_rx = rx_leer_dato(xmodem->rcp);
                         //xmodem_guardar_dato(xmodem, dato_rx);
@@ -72,7 +83,7 @@ void xmodem_process(xmodem_control_t *xmodem)
             }
             else if (xmodem_paquete_valido(xmodem) == VALIDO)
             {
-                if(xmodem->p_duplicado)
+                if(xmodem->p_duplicado && xmodem->secuencia_copiada == xmodem->secuencia)
                 {
                     rx_enviar(ACK);
                     xmodem->p_duplicado = 0;
@@ -83,6 +94,7 @@ void xmodem_process(xmodem_control_t *xmodem)
                 else
                 {
                     datos_copiar_paquete(xmodem->dcp, &xmodem->xmodem_buffer[3]);
+                    xmodem->secuencia_copiada = xmodem->secuencia;
                     xmodem->contador_errores = 0;
                     xmodem->buffer_uso = 0;
                     xmodem->buffer_llenado = 0;
@@ -121,29 +133,30 @@ void xmodem_process(xmodem_control_t *xmodem)
             if(rx_dato_disponible(xmodem->rcp))
             {
                 dato_rx = rx_leer_dato(xmodem->rcp);
+                if (dato_rx == SOH)
+                {
+                    xmodem_guardar_dato(xmodem, dato_rx);
+                    xmodem->state = VALIDACION;
+                }
+                else if(dato_rx == EOT)
+                {
+                    rx_enviar(ACK);
+                    datos_fin_paquete(xmodem->dcp);
+                    xmodem->contador_errores = 0;
+                    xmodem->ffpaquete = 1;
+                    xmodem->buffer_uso = 0;
+                    xmodem->buffer_llenado = 0;
+                    xmodem->buffer_vaciado = 0;
+                    xmodem->state = INI_CON;
 
+                }
             }
             //dato_rx = rx_leer_dato(xmodem->rcp);
-            if (dato_rx == SOH)
-            {
-                xmodem_guardar_dato(xmodem, dato_rx);
-                xmodem->state = VALIDACION;
-            }
-            else if(dato_rx == EOT)
-            {
-                rx_enviar(ACK);
-                datos_fin_paquete(xmodem->dcp);
-                xmodem->contador_errores = 0;
-                xmodem->ffpaquete = 1;
-                xmodem->buffer_uso = 0;
-                xmodem->buffer_llenado = 0;
-                xmodem->buffer_vaciado = 0;
-                xmodem->state = INI_CON;
 
-            }
             else if(Timer_Consulta_TO(xmodem->tcp, TIMEOUT_0)) // No llego ni SOH ni EOT
             {
                 rx_enviar(NAK);
+                Timer_setup_TO(xmodem->tcp, TIMEOUT_0, T10S);
                 xmodem->contador_errores ++;
 
             }
@@ -158,14 +171,7 @@ char xmodem_paquete_valido(xmodem_control_t *xmodem)
     {
         seq = xmodem->xmodem_buffer[1];
         seq_a = 255 - seq;
-        if(seq == xmodem->secuencia)
-        {
-            xmodem->p_duplicado = 1;
-        }
-        else
-        {
-            xmodem->secuencia = seq;
-        }
+
         if(seq_a  == xmodem->xmodem_buffer[2])
         {
          csum  = xmodem->xmodem_buffer[131];
@@ -178,6 +184,14 @@ char xmodem_paquete_valido(xmodem_control_t *xmodem)
          //return VALIDO;
          if (csum == csum_calculado)
          {
+             if(seq == xmodem->secuencia)
+             {
+                 xmodem->p_duplicado = 1;
+             }
+             else
+             {
+                 xmodem->secuencia = seq;
+             }
              return VALIDO;
          }
          //calcular suma

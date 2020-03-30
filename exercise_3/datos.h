@@ -26,6 +26,7 @@ struct datos_control_t
     dy_control_t *dycp;
     unsigned char dato_mostrar;
     unsigned char flag_2hz;
+    unsigned char dato_fin_paquete;
 
     int buffer_uso;
     unsigned int buffer_llenado;

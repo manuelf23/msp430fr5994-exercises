@@ -10,6 +10,7 @@ void datos_init(datos_control_t *dcp, timer_control_t *tcp, dy_control_t *dycp)
 {
     dcp->tcp = tcp;
     dcp->dycp = dycp;
+    dcp->dato_fin_paquete = 0;
 
     dcp->dato_mostrar = '-';
     dcp->flag_2hz = 0;
@@ -22,6 +23,18 @@ void datos_process(datos_control_t *dcp)
 {
     if (Timer_Consulta_TP(dcp->tcp, TIMER_1) != 0)
     {
+        if(dcp->dato_fin_paquete && dcp->buffer_uso < DATOS_DATOS_BUFFER_TAMANO)
+        {
+            dcp->dato_fin_paquete = 0;
+            dcp->datos_buffer[dcp->buffer_llenado] = '-';
+            dcp->buffer_uso ++;
+            dcp->buffer_llenado ++;
+            if(dcp->buffer_llenado == DATOS_DATOS_BUFFER_TAMANO)
+            {
+                dcp->buffer_llenado = 0;
+            }
+        } // este if es para que si es el final del paquete agregue al buffer el '-'
+
         if(dcp->buffer_uso > 0)
         {
             dcp->flag_2hz = 0;
@@ -88,8 +101,6 @@ char datos_sacar_dato(datos_control_t *dcp)
 
 void datos_fin_paquete(datos_control_t *dcp)
 {
-    dcp->dato_mostrar = '-';
-    dcp->buffer_uso = 0;
-    dcp->buffer_llenado = 0;
-    dcp->buffer_vaciado = 0;
+    dcp->dato_fin_paquete = 1;
+
 }
