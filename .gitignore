@@ -83,3 +83,15 @@ exercise_3/.ccsproject
 exercise_3/.cproject
 
 exercise_3/.project
+
+.ccsproject
+
+.cproject
+
+.DS_Store
+
+targetConfigs/
+
+.settings/
+
+.project
