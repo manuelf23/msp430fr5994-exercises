@@ -11,7 +11,9 @@
 void Timer_init(timer_control_t *tcp)
 {
     char n;
-    TA0CCTL0 = 0x00;
+    //CCTL0 = CCIE;                             // CCR0 interrupt enabled
+    //TA0CCTL0 = 0x00;
+    TA0CCTL0 |= CCIE;
     TA0CCR0 = 6666; //8.000.000/(1200)
     TA0CTL = TASSEL__SMCLK | MC__UP; //0x0200 | 0x0010 -> 0x210 ->  0010 0001 0000
     tcp->tp_c = TIMER_TAMANO_TP;
@@ -23,10 +25,13 @@ void Timer_init(timer_control_t *tcp)
     //for (n = tcp->to_c ; n; --n)
     for(n=0;n<tcp->to_c;n++)
     tcp->to[n].banderas = 0x0;
-    __no_operation();
 
 
 }
+
+
+
+
 
 void Timer_Process(timer_control_t *tcp)//Interfaz del main
 {
@@ -36,7 +41,7 @@ void Timer_Process(timer_control_t *tcp)//Interfaz del main
     {
         TA0CTL &= ~TAIFG;
 
-        /* Revisa la tabla de per�odos y procesa los que est�n activos */
+        // Revisa la tabla de per�odos y procesa los que est�n activos
         //for (n = tcp->tp_c ; n; n--)
         for (n=0; n < tcp->tp_c ; n++)
         if (tcp->tp[n].banderas & TIMER_ACTIVO)
@@ -50,7 +55,7 @@ void Timer_Process(timer_control_t *tcp)//Interfaz del main
 
         };
 
-        /* Revisa la tabla de timeouts y procesa los que est�n activos */
+        // Revisa la tabla de timeouts y procesa los que est�n activos
         //for (n = tcp->to_c; n; --n)
         for (n=0; n < tcp->to_c ; n++)
         if (tcp->to[n].banderas & TIMER_ACTIVO)
@@ -65,6 +70,7 @@ void Timer_Process(timer_control_t *tcp)//Interfaz del main
     }
 
 }
+
 
 unsigned char Timer_Consulta_TO(timer_control_t *tcp, unsigned char to)
 {
