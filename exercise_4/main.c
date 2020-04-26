@@ -4,6 +4,7 @@
 #include <datos.h>
 #include <rx.h>
 #include <xmodem.h>
+#include <teclado.h>
 
 /**
  * main.c
@@ -13,6 +14,7 @@ datos_control_t dcp;
 rx_control_t rcp;
 dy_control_t dycp;
 xmodem_control_t xmodem;
+teclado_control_t tclp;
 
 void main(void)
 {
@@ -30,6 +32,7 @@ void main(void)
     rx_init(&rcp);
     datos_init(&dcp, &tcp, &dycp);
     xmodem_init(&xmodem, &tcp, &rcp , &dcp);
+    teclado_init(&tclp, &tcp, &dcp);
 
     __bis_SR_register(GIE);     // Enter LPM0 w/ interrupt
 	while(1)
@@ -39,6 +42,7 @@ void main(void)
         xmodem_process(&xmodem);
         datos_process(&dcp);
         display_process(&dycp);
+        teclado_process(&tclp);
 	}
 }
 

@@ -27,6 +27,7 @@ struct datos_control_t
     unsigned char dato_mostrar;
     unsigned char flag_2hz;
     unsigned char dato_fin_paquete;
+    unsigned char freq_mult;
 
     int buffer_uso;
     unsigned int buffer_llenado;
@@ -40,5 +41,8 @@ void datos_copiar_paquete(datos_control_t *dcp, unsigned char *paquete);
 char datos_esta_libre(datos_control_t *dcp);
 char datos_sacar_dato(datos_control_t *dcp);
 void datos_fin_paquete(datos_control_t *dcp);
+void datos_mas_freq(datos_control_t *dcp);
+void datos_menos_freq(datos_control_t *dcp);
+
 
 #endif /* DATOS_H_ */

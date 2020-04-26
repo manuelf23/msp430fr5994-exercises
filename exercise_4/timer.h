@@ -11,7 +11,7 @@
 #include <msp430.h>
 
 #define TIMER_TAMANO_TO 3
-#define TIMER_TAMANO_TP 2
+#define TIMER_TAMANO_TP 3
 
 #define TIMER_ACTIVO 0x01
 #define TIMER_FINALIZADO 0x02
