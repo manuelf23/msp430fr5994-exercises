@@ -95,3 +95,7 @@ targetConfigs/
 .settings/
 
 .project
+
+exercise_4/.launches/
+
+exercise_4/Debug/

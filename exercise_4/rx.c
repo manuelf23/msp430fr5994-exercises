@@ -24,23 +24,23 @@ void rx_init(rx_control_t *rcp)
     P6SEL0 |= (BIT0 | BIT1);
 
     CSCTL0_H = CSKEY_H;                     // Unlock CS registers
-        CSCTL1 = DCOFSEL_3 | DCORSEL;           // Set DCO to 8MHz
-        CSCTL2 = SELA__VLOCLK | SELS__DCOCLK | SELM__DCOCLK;
-        CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;   // Set all dividers
-        CSCTL0_H = 0;                           // Lock CS registers
+    CSCTL1 = DCOFSEL_3 | DCORSEL;           // Set DCO to 8MHz
+    CSCTL2 = SELA__VLOCLK | SELS__DCOCLK | SELM__DCOCLK;
+    CSCTL3 = DIVA__1 | DIVS__1 | DIVM__1;   // Set all dividers
+    CSCTL0_H = 0;                           // Lock CS registers
 
-        // Configure USCI_A3 for UART mode
-        UCA3CTLW0 = UCSWRST;                    // Put eUSCI in reset
-        UCA3CTLW0 |= UCSSEL__SMCLK;             // CLK = SMCLK
-        // Baud Rate calculation
-        // 8000000/(16*9600) = 52.083
-        // Fractional portion = 0.083
-        // User's Guide Table 21-4: UCBRSx = 0x04
-        // UCBRFx = int ( (52.083-52)*16) = 1
-        UCA3BRW = 208;                           // 8000000/16/9600
-        UCA3MCTLW |= UCOS16 | UCBRF_1 | 0x4900;
-        UCA3CTLW0 &= ~UCSWRST;                  // Initialize eUSCI
-        UCA3IE |= UCRXIE;                       // Enable USCI_A3 RX interrupt
+    // Configure USCI_A3 for UART mode
+    UCA3CTLW0 = UCSWRST;                    // Put eUSCI in reset
+    UCA3CTLW0 |= UCSSEL__SMCLK;             // CLK = SMCLK
+    // Baud Rate calculation
+    // 8000000/(16*9600) = 52.083
+    // Fractional portion = 0.083
+    // User's Guide Table 21-4: UCBRSx = 0x04
+    // UCBRFx = int ( (52.083-52)*16) = 1
+    UCA3BRW = 208;                           // 8000000/16/9600
+    UCA3MCTLW |= UCOS16 | UCBRF_1 | 0x4900;
+    UCA3CTLW0 &= ~UCSWRST;                  // Initialize eUSCI
+    //UCA3IE |= UCRXIE;                       // Enable USCI_A3 RX interrupt
 
 
     //UCA1IE |= UCRXIE; //habilitar interrupcion

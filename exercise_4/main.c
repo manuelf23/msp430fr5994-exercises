@@ -31,12 +31,49 @@ void main(void)
     datos_init(&dcp, &tcp, &dycp);
     xmodem_init(&xmodem, &tcp, &rcp , &dcp);
 
+    __bis_SR_register(GIE);     // Enter LPM0 w/ interrupt
 	while(1)
 	{
-	    Timer_Process(&tcp);
+	    //Timer_Process(&tcp);
 	    rx_process(&rcp);
         xmodem_process(&xmodem);
         datos_process(&dcp);
         display_process(&dycp);
 	}
+}
+
+#pragma vector = TIMER0_A0_VECTOR
+__interrupt void Timer_A (void)
+{
+    char n;
+    //TA0CTL &= ~TAIFG; // -bajo la bandera del timer
+    // Revisa la tabla de per�odos y procesa los que est�n activos
+    //for (n = tcp.tp_c ; n; n--)
+    __disable_interrupt();
+    for (n=0; n < tcp.tp_c ; n++)
+    if (tcp.tp[n].banderas & TIMER_ACTIVO)
+    {
+        tcp.tp[n].contador --;
+        if ( (tcp.tp[n].contador)==0 )
+        {
+            tcp.tp[n].banderas |= TIMER_FINALIZADO;
+            tcp.tp[n].contador = tcp.tp[n].valor;
+        };
+
+    };
+
+    // Revisa la tabla de timeouts y procesa los que est�n activos
+    //for (n = tcp.to_c; n; --n)
+    for (n=0; n < tcp.to_c ; n++)
+    if (tcp.to[n].banderas & TIMER_ACTIVO)
+    {
+        tcp.to[n].contador --;
+        if ( tcp.to[n].contador ==0 )
+        {
+            tcp.to[n].banderas |= TIMER_FINALIZADO;
+            tcp.to[n].banderas &= ~TIMER_ACTIVO ;
+        };
+    };
+    __enable_interrupt();
+    //TA0CCR0 += 50000;
 }
