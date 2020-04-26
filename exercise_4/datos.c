@@ -17,7 +17,8 @@ void datos_init(datos_control_t *dcp, timer_control_t *tcp, dy_control_t *dycp)
     dcp->buffer_uso = 0;
     dcp->buffer_llenado = 0;
     dcp->buffer_vaciado = 0;
-    Timer_setup_TP(dcp->tcp, TIMER_1, PERIODO); //timer para sacar datos a 120Hz
+    dcp->freq_mult = 1;
+    Timer_setup_TP(dcp->tcp, TIMER_1, PERIODO*dcp->freq_mult); //timer para sacar datos a 120Hz
 }
 void datos_process(datos_control_t *dcp)
 {
@@ -103,4 +104,22 @@ void datos_fin_paquete(datos_control_t *dcp)
 {
     dcp->dato_fin_paquete = 1;
 
+}
+
+void datos_mas_freq(datos_control_t *dcp)
+{
+    if(dcp->freq_mult < 5)
+    {
+        dcp->freq_mult += 1;
+        Timer_setup_TP(dcp->tcp, TIMER_1, PERIODO*dcp->freq_mult);
+    }
+
+}
+void datos_menos_freq(datos_control_t *dcp)
+{
+    if(dcp->freq_mult > 1)
+        {
+            dcp->freq_mult -= 1;
+            Timer_setup_TP(dcp->tcp, TIMER_1, PERIODO*dcp->freq_mult);
+        }
 }
