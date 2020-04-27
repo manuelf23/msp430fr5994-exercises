@@ -37,7 +37,9 @@ void xmodem_process(xmodem_control_t *xmodem)
             //char dato_rx;
             if(rx_dato_disponible(xmodem->rcp))
             {
+                __disable_interrupt();
                 dato_rx = rx_leer_dato(xmodem->rcp);
+                __enable_interrupt();
             }
             //dato_rx = rx_leer_dato(xmodem->rcp);
 
@@ -62,7 +64,9 @@ void xmodem_process(xmodem_control_t *xmodem)
 
                         if(rx_dato_disponible(xmodem->rcp))
                         {
+                            __disable_interrupt();
                             dato_rx = rx_leer_dato(xmodem->rcp);
+                            __enable_interrupt();
                             xmodem_guardar_dato(xmodem, dato_rx);
                             Timer_setup_TO(xmodem->tcp, TIMEOUT_0, TM1S);
                         }
@@ -132,7 +136,9 @@ void xmodem_process(xmodem_control_t *xmodem)
 
             if(rx_dato_disponible(xmodem->rcp))
             {
+                __disable_interrupt();
                 dato_rx = rx_leer_dato(xmodem->rcp);
+                __enable_interrupt();
                 if (dato_rx == SOH)
                 {
                     xmodem_guardar_dato(xmodem, dato_rx);

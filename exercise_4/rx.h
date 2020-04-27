@@ -11,7 +11,7 @@
 #include <timer.h>
 #include <msp430.h>
 
-#define DATOS_RX_BUFFER_TAMANO  22
+#define DATOS_RX_BUFFER_TAMANO  4
 
 
 typedef struct rx_control_t rx_control_t;
@@ -24,6 +24,7 @@ struct rx_control_t
     unsigned int rx_llenado;
     unsigned int rx_vaciado;
     unsigned char rx_buffer[DATOS_RX_BUFFER_TAMANO];
+    unsigned char rx_full;
 };
 
 void rx_init(rx_control_t *rcp);

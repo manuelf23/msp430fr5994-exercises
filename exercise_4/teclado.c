@@ -18,7 +18,7 @@ void teclado_init(teclado_control_t *tclp, timer_control_t *tcp, datos_control_t
     tclp->contador = TECLA_MENOS;
     tclp->val_puerto = 0x0;
 
-    Timer_setup_TP(tclp->tcp, TIMER_2, PERIODO_MUESTREO); //timer para refresco de display a 1200Hz
+    Timer_setup_TP(tclp->tcp, TIMER_2, PERIODO_MUESTREO); //timer 50ms
     __no_operation();
 }
 void teclado_process(teclado_control_t *tclp)
