@@ -32,7 +32,7 @@ void Timer_init(timer_control_t *tcp)
 
 
 
-
+/*
 void Timer_Process(timer_control_t *tcp)//Interfaz del main
 {
     char n;
@@ -70,7 +70,7 @@ void Timer_Process(timer_control_t *tcp)//Interfaz del main
     }
 
 }
-
+*/
 
 unsigned char Timer_Consulta_TO(timer_control_t *tcp, unsigned char to)
 {
