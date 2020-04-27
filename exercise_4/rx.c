@@ -81,11 +81,11 @@ char rx_leer_dato(rx_control_t *rcp)
     {
         rcp->rx_vaciado = 0;
     }
-    /*if (rcp->rx_full)                   //la cola esta en estado de lleno?
+    if (rcp->rx_full)                   //la cola esta en estado de lleno?
     {
         rcp->rx_full = 0;
         UCA3IE |= UCRXIE;               // Como se acaba de sacar un dato de la cola etonces Habilitar interrupción de UART
-    }*/
+    }
     return dato;
 }
 
