@@ -101,10 +101,10 @@ __interrupt void USCI_A3_ISR(void)
                     {
                         rcp.rx_llenado = 0;
                     }
-                    if(rx.uso == DATOS_RX_BUFFER_TAMANO) // se guardó el dato y ahora se pregunta si se lleno la cola
+                    if(rcp.rx_uso == DATOS_RX_BUFFER_TAMANO) // se guardó el dato y ahora se pregunta si se lleno la cola
                     {
                         rcp.rx_full = 1;
-                        UCA3IE &= UCRXIE_0 // deshabilitar interrupciones de la UART (vuelven a habilatrse en la iterfaz que saca datos de la cola cuando haya espacio)
+                        UCA3IE &= UCRXIE_0; // deshabilitar interrupciones de la UART (vuelven a habilatrse en la iterfaz que saca datos de la cola cuando haya espacio)
                     }
                 }
                 //UCA3TXBUF = UCA3RXBUF
