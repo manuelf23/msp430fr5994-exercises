@@ -99,3 +99,5 @@ targetConfigs/
 exercise_4/.launches/
 
 exercise_4/Debug/
+
+demo_blink/Debug/demo_blink_linkInfo.xml
