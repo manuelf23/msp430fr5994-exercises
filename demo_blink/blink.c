@@ -47,7 +47,7 @@ static uint32_t *tam_stack_blink;
 void Inicie_cr (Tcb *tcb, uint32_t *task_stack, Corrutina *rutina, void *parametro);
 void Ejecute_cr (Tcb *tcb);
 void blink(void);
-void toggle(void);
+void toggle(int val);
 
 
 void main(void) {
@@ -58,7 +58,7 @@ void main(void) {
     P1OUT &= ~0x01;
     tam_stack_blink = stack_blink + LONG_STACK_BLINK;
     Inicie_cr(&tcb_blink, stack_blink + LONG_STACK_BLINK, blink, NULL);
-    Inicie_cr(&tcb_toggle, stack_toggle + LONG_STACK_BLINK, toggle, NULL);
+    Inicie_cr(&tcb_toggle, stack_toggle + LONG_STACK_BLINK, toggle, 30000);
     tcb_actual=&tcb_ppal;
 
     for(;;) {
@@ -78,19 +78,19 @@ void blink(void)
     while(1)
     {
         P1OUT ^= 0x01;
-        Ejecute_cr (&tcb_ppal);
-        //Ejecute_cr (&tcb_toggle);
+        //Ejecute_cr (&tcb_ppal);
+        Ejecute_cr (&tcb_toggle);
     }
 }
 
-void toggle(void)
+void toggle(int val)
 {
     for(;;) {
             volatile unsigned int i;            // volatile to prevent optimization
 
             //blink();
             Ejecute_cr (&tcb_blink);
-            i = 10000;                          // SW Delay
+            i = val;                          // SW Delay
             do i--;
             while(i != 0);
         }
@@ -126,15 +126,11 @@ void Inicie_cr (Tcb *tcb, uint32_t *task_stack, Corrutina *rutina, void *paramet
     task_stack -= 1;
     *(--task_stack) = (uint32_t)rutina;
     sp_local = (uint32_t)rutina;
-    //task_stack -= sizeof(Corrutina *); //decrementa dos posiciones
-    //*((Corrutina**)task_stack) = rutina;
     *(--task_stack) = GIE; //Se guarda el SR
-    //task_stack -= 1; //Me muevo a R3
-
+    /*
     *(--task_stack) = 0x00; //R15
     *(--task_stack) = 0x00; //R14
     *(--task_stack) = 0x00; //R13
-    //*((void**)task_stack) = parametro;
     *(--task_stack) = (uint32_t)parametro; //R12
     *(--task_stack) = 0x00; //R11
     *(--task_stack) = 0x00; //R10
@@ -144,20 +140,23 @@ void Inicie_cr (Tcb *tcb, uint32_t *task_stack, Corrutina *rutina, void *paramet
     *(--task_stack) = 0x00; //R6
     *(--task_stack) = 0x00; //R5
     *(--task_stack) = 0x00; //R4
-
-    /*
-    int reg;
-    for(reg=4; reg<12; reg++)
-    {
-        *(--task_stack) = 0x00;
-    }
-    task_stack -= 1; // Me muevo a R12
-    *((void**)task_stack) = parametro; //Le asigno valor a R12
-
-    for(reg=13; reg<16; reg++)
-    {
-        *(--task_stack) = 0x00;
-    }
     */
+
+    int reg;
+    for(reg=15; reg>12; reg--)
+    {
+        *(--task_stack) = 0x00; //Se dejan en 0x00 los registros R15, R14, y R13
+    }
+    *(--task_stack) = (uint32_t)parametro; /*A R12 se le asigna el valor del parametro.
+                                            Este procesador pasa los argumentos a funciones por registros,
+                                            usando losregistros R12, R13,R14 y R15.
+                                            En este caso como solo se va a asignar un parametro,
+                                            solo se va a usar el registro R12  */
+
+    for(reg=12; reg>4; reg--)
+    {
+        *(--task_stack) = 0x00; //Se dejan en 0x00 los registros R11, R10, R9, R8, R7, R6, R5 Y R4
+    }
+
     tcb->task_sp = task_stack;
 }
