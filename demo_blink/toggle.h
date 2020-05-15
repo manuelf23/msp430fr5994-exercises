@@ -16,9 +16,9 @@ struct toggle_control_t
     //Tcb tcb_toggle;
     //Tcb tcb_ppal;
     Tcb tcb_ppal;
-    int val;
+    double val;
 };
-void toggle_init(toggle_control_t *tgcp, Tcb *tcb_ppal);
+void toggle_init(toggle_control_t *tgcp);
 void toggle_process(toggle_control_t *tgcp);
 
 

@@ -15,8 +15,8 @@ void main(void) {
     PM5CTL0 &= ~LOCKLPM5;                   // Disable the GPIO power-on default high-impedance mode
                                             // to activate previously configured port settings
 
-    blink_init(&bcp, &tcb_ppal);
-    toggle_init(&tgcp, &tcb_ppal);
+    blink_init(&bcp);
+    toggle_init(&tgcp);
 
     static uint32_t  stack_blink[LONG_STACK_BLINK]= {0};
     static uint32_t  stack_toggle[LONG_STACK_BLINK]= {0};
