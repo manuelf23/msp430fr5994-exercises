@@ -8,6 +8,7 @@ GEN_OPTS__FLAG :=
 GEN_CMDS__FLAG := 
 
 ORDERED_OBJS += \
+"./corrutinas.obj" \
 "./datos.obj" \
 "./display.obj" \
 "./main.obj" \
@@ -160,8 +161,8 @@ exercise_5.hex: $(EXE_OUTPUTS)
 # Other Targets
 clean:
 	-$(RM) $(BIN_OUTPUTS__QUOTED)$(EXE_OUTPUTS__QUOTED)
-	-$(RM) "datos.obj" "display.obj" "main.obj" "rx.obj" "teclado.obj" "timer.obj" "xmodem.obj" 
-	-$(RM) "datos.d" "display.d" "main.d" "rx.d" "teclado.d" "timer.d" "xmodem.d" 
+	-$(RM) "corrutinas.obj" "datos.obj" "display.obj" "main.obj" "rx.obj" "teclado.obj" "timer.obj" "xmodem.obj" 
+	-$(RM) "corrutinas.d" "datos.d" "display.d" "main.d" "rx.d" "teclado.d" "timer.d" "xmodem.d" 
 	-@echo 'Finished clean'
 	-@echo ' '
 

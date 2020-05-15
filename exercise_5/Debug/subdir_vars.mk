@@ -7,6 +7,7 @@ CMD_SRCS += \
 ../lnk_msp430fr5994.cmd 
 
 C_SRCS += \
+../corrutinas.c \
 ../datos.c \
 ../display.c \
 ../main.c \
@@ -16,6 +17,7 @@ C_SRCS += \
 ../xmodem.c 
 
 C_DEPS += \
+./corrutinas.d \
 ./datos.d \
 ./display.d \
 ./main.d \
@@ -25,6 +27,7 @@ C_DEPS += \
 ./xmodem.d 
 
 OBJS += \
+./corrutinas.obj \
 ./datos.obj \
 ./display.obj \
 ./main.obj \
@@ -34,6 +37,7 @@ OBJS += \
 ./xmodem.obj 
 
 OBJS__QUOTED += \
+"corrutinas.obj" \
 "datos.obj" \
 "display.obj" \
 "main.obj" \
@@ -43,6 +47,7 @@ OBJS__QUOTED += \
 "xmodem.obj" 
 
 C_DEPS__QUOTED += \
+"corrutinas.d" \
 "datos.d" \
 "display.d" \
 "main.d" \
@@ -52,6 +57,7 @@ C_DEPS__QUOTED += \
 "xmodem.d" 
 
 C_SRCS__QUOTED += \
+"../corrutinas.c" \
 "../datos.c" \
 "../display.c" \
 "../main.c" \

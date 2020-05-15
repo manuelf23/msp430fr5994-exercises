@@ -1,1 +1,1 @@
-"./datos.obj" "./display.obj" "./main.obj" "./rx.obj" "./teclado.obj" "./timer.obj" "./xmodem.obj" "../lnk_msp430fr5994.cmd" -llibmpu_init.a -llibmath.a -llibc.a 
+"./corrutinas.obj" "./datos.obj" "./display.obj" "./main.obj" "./rx.obj" "./teclado.obj" "./timer.obj" "./xmodem.obj" "../lnk_msp430fr5994.cmd" -llibmpu_init.a -llibmath.a -llibc.a 
