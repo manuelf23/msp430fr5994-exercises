@@ -6,6 +6,11 @@
  */
 
 #include <corrutinas.h>
+#include <msp430.h>
+#include <stdint.h>
+
+uint32_t *task_sp;
+Tcb *tcb_actual;
 void Ejecute_cr (Tcb *tcb)
 {
     //sufijo .a -> 20-bits

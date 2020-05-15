@@ -1,51 +1,34 @@
-//***************************************************************************************
-//  MSP430 Blink the LED Demo - Software Toggle P1.0
-//
-//  Description; Toggle P1.0 by xor'ing P1.0 inside of a software loop.
-//  ACLK = n/a, MCLK = SMCLK = default DCO
-//
-//                MSP430x5xx
-//             -----------------
-//         /|\|              XIN|-
-//          | |                 |
-//          --|RST          XOUT|-
-//            |                 |
-//            |             P1.0|-->LED
-//
-//  Texas Instruments, Inc
-//  July 2013
-//***************************************************************************************
-
 #include <msp430.h>
 #include <stdint.h>
-#include <corrutinas.h>
 #include <blink.h>
 #include <toggle.h>
+#define LONG_STACK_BLINK        50
 
 
 Tcb tcb_blink, tcb_ppal, tcb_toggle;
 blink_control_t bcp;
 toggle_control_t tgcp;
+extern Tcb *tcb_actual;
 
 void main(void) {
     WDTCTL = WDTPW | WDTHOLD;               // Stop watchdog timer
     PM5CTL0 &= ~LOCKLPM5;                   // Disable the GPIO power-on default high-impedance mode
                                             // to activate previously configured port settings
-    /*
-    Inicie_cr(&tcb_blink, stack_blink + LONG_STACK_BLINK, blink, NULL);
-    Inicie_cr(&tcb_toggle, stack_toggle + LONG_STACK_BLINK, toggle, 50000);
-    */
-    blink_init(&bcp, tcb_blink, tcb_ppal);
-    toggle_init(&tgcp, &tcb_toggle, &tcb_ppal);
+
+    blink_init(&bcp, &tcb_ppal);
+    toggle_init(&tgcp, &tcb_ppal);
+
+    static uint32_t  stack_blink[LONG_STACK_BLINK]= {0};
+    static uint32_t  stack_toggle[LONG_STACK_BLINK]= {0};
+
+    Inicie_cr(&tcb_blink, stack_blink + LONG_STACK_BLINK, blink_process, NULL);
+    Inicie_cr(&tcb_toggle, stack_toggle + LONG_STACK_BLINK, toggle_process, &tgcp);
+
     tcb_actual=&tcb_ppal;
 
     while(1){
         Ejecute_cr (&tcb_blink);
         Ejecute_cr (&tcb_toggle);
     }
-
-
-
-
 }
 
