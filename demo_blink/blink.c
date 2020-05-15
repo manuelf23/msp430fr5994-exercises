@@ -19,26 +19,28 @@
 #include <msp430.h>
 #include <stdint.h>
 
-#define LONG_STACK_BLINK        50
+#define LONG_STACK_BLINK        1024/2
+#define NUM_REGISTERS      16
+#define NULL 0
 
 typedef struct Tcb Tcb;
 struct Tcb
   {
-    uint16_t *task_sp;
+    uint32_t *task_sp;
   };
-typedef void Corrutina(volatile void *parametro);
-
-static uint16_t *task_sp;
 
 Tcb *tcb_actual;
-
 Tcb   tcb_blink,
       tcb_ppal;
-__no_operation();
-static uint16_t  stack_blink[LONG_STACK_BLINK]= {0};
 
+typedef void Corrutina(volatile void *parametro);
+static uint32_t sp_local;
+static uint32_t *task_sp;
+//static volatile void * volatile task_sp;
+static uint32_t  stack_blink[LONG_STACK_BLINK]= {0};
+static uint32_t *tam_stack_blink;
 //void Inicie_cr (Tcb *tcb, uint16_t *sp, Corrutina *rutina, void *parametro);
-void Inicie_cr (Tcb *tcb, uint16_t *task_stack, Corrutina *func, uint16_t stack_bytes);
+void Inicie_cr (Tcb *tcb, uint32_t *task_stack, Corrutina *rutina, void *parametro);
 void Ejecute_cr (Tcb *tcb);
 void blink(void);
 
@@ -49,12 +51,15 @@ void main(void) {
     PM5CTL0 &= ~LOCKLPM5;                   // Disable the GPIO power-on default high-impedance mode
                                             // to activate previously configured port settings
     P1DIR |= 0x01;                          // Set P1.0 to output direction
-    Inicie_cr(&tcb_blink, stack_blink, blink, LONG_STACK_BLINK);
+    P1OUT &= ~0x01;
+    tam_stack_blink = stack_blink + LONG_STACK_BLINK;
+    Inicie_cr(&tcb_blink, stack_blink + LONG_STACK_BLINK, blink, NULL);
     tcb_actual=&tcb_ppal;
 
     for(;;) {
         volatile unsigned int i;            // volatile to prevent optimization
 
+        //blink();
         Ejecute_cr (&tcb_blink);
         i = 10000;                          // SW Delay
         do i--;
@@ -74,87 +79,121 @@ void blink(void)
 
 void Ejecute_cr (Tcb *tcb)
 {
-    // static uint16_t *task_sp;
-
+    //static uint16_t *task_sp;
+    //static volatile void * volatile task_sp;
     // Guardar contexto (en el stack)
-    asm (" POPM.A #5,R15 \n\t");
-    asm (" pushm.a #12, r15 \n\t");
-    // sp <- SP (en asembler)
-    asm(" mov sp, task_sp \n\t"); //SP->R1
+    asm(" push.w sr");
+    /*asm(" push.w r15");
+    asm(" push.w r14");
+    asm(" push.w r13");
+    asm(" push.w r12");
+    asm(" push.w r11");
+    asm(" push.w r10");
+    asm(" push.w r9");
+    asm(" push.w r8");
+    asm(" push.w r7");
+    asm(" push.w r6");
+    asm(" push.w r5");
+    asm(" push.w r4");*/
+
+    asm(" pushm.a #12, r15"); /*guarda en el stack 12 registros empezando desde el R15 y va decrementando
+                                      R15, R14, R13, R12, R11, R10, R9, R8, R7, R6, R5, R4
+                                      SP es decrementado en (n × 2) despues de realizar la operación*/
+
+
+    /*asm(" mov.w   &task_sp, r12"); // MOV src,dst / src → dst /&=Absolute address
+    asm(" mov.w   sp, 0( r12 )");
+    */
+    asm(" mov.a   sp, &task_sp");
     tcb_actual->task_sp = task_sp;
     tcb_actual = tcb;
     task_sp = tcb_actual->task_sp;
-    // SP <- sp (en asembler)
-    //asm (" mov R4, sp");
-    asm (" mov task_sp, sp \n\t"); //SP->R1
-    // Restaurar contexto (del stack)
-    asm (" popm.a #12, r15 \n\t");
-}
-
-#define INIT_SR            0        /* Valor inicial para el SR, principalmente por
-                                       la mascara de interrupciones */
-#define LONG_RESTO_CTX     5
-#define NUM_REGISTERS      15
-
-void Inicie_cr (Tcb *tcb, uint16_t *task_stack, Corrutina *func, uint16_t stack_bytes)
-{
-    /*--sp; SP está en la última posición ocupada del stack, por lo tanto se decrementa
-                            para que quede en una posición libre, en donde se guardará el valor de parámetro*/
-   /* ((char *) sp) -= sizeof(void *); -> otra forma de hacer lo mismo */
-    /**sp = parametro; Se guarda el valor de parámetro en lo apuntado por ((void*)*)sp */
-
-    /*(Corrutina**)sp --;
-    (Corrutina**)sp --;  Mueve el SP dos posiciones para poder guardar el PC inicial de la rutina
-                                               +--------------------------+
-                                               :                          :
-                                               |                          |
-                                               +--------------------------+
-                                               | Contexto                 |
-                                               |                          |
-                                               |                          |
-                                               |                          |
-                                               +--------------------------+
-   (Despues de ejecutarse la instruccion) SP-> | PC inicial de la rutina  |
-                                               +--------------------------+
-                                               | PC de retorna de rutina  |   (el valor no importa porque no retorna)
-                                               +--------------------------+
-     (Antes de ejecutarse la instruccion) SP-> | Parametro                |
-                                               +--------------------------+
-
+    asm(" mov.a   &task_sp, sp");
+    /*
+    asm(" mov.w   &task_sp, r12");
+    asm(" mov.w  @r12, sp");    //@=Register indirect addressing
     */
 
-    /*  *((Corrutina**)sp) = rutina; Se guarda el valor de la direccion de la corrutina en lo apuntado por (Corrutina**)sp */
 
-    /*--((unsigned short *) sp);
-    *((unsigned short *) sp) = INIT_SR;*/
-/* Opcion: *((unsigned short *) sp) = inicio_sr; */
-    //((unsigned short *) sp) -= LONG_RESTO_CTX;
+    asm(" popm.a    #12, r15"); /*Reestaura registros de 16-bits desde el stack hacia la CPU empezando desde el R15 - 12
+                                  y va decrementando
+                                  R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15
+                                  SP es incrementado en (n × 2) despues de realizar la operación*/
 
-    uint16_t * stack = &task_stack[(stack_bytes/sizeof(uint16_t))-1];
+    /*asm(" pop.w r4");
+    asm(" pop.w r5");
+    asm(" pop.w r6");
+    asm(" pop.w r7");
+    asm(" pop.w r8");
+    asm(" pop.w r9");
+    asm(" pop.w r10");
+    asm(" pop.w r11");
+    asm(" pop.w r12");
+    asm(" pop.w r13");
+    asm(" pop.w r14");
+    asm(" pop.w r15");*/
+    asm(" nop");
+    asm(" pop.a sr");
+    asm(" nop");
+    //asm(" pop.w PC");
+    //asm(" nop");
+    //asm (" RETI \n\t");
 
-        // First, store the 20-bit PC and the status
-        // register. These will get popped as a last step
-        // when returning from the timer interrupt.
-        *(--stack) = (uint16_t)func;
-        *(--stack) = 0x0; // Only set GIE in the status
-                          // register we want to start with
-                          // Upper 4 bits of PC are also stored
-                          // here but are zeroed.
+}
 
-        int reg;
-        for(reg=4; reg<NUM_REGISTERS; reg++) {
-            // Start at register 4, since
-            // R0 == PC
-            // R1 == SP
-            // R2 == SR
-            // R3 is reserved
-            // and we load these separately
+void Inicie_cr (Tcb *tcb, uint32_t *task_stack, Corrutina *rutina, void *parametro)
+{
 
-            // Emulate PUSHX, and save two words
-            // per 20-bit register
-            *(--stack) = 0x0;
-            *(--stack) = 0x0;
-        }
+    __no_operation();
+    __no_operation();
+    //task_stack = &task_stack[(LONG_STACK_BLINK/sizeof(uint16_t))-1];
+    task_stack -= 1;
+    *(--task_stack) = (uint32_t)rutina;
+    sp_local = (uint32_t)rutina;
+    //task_stack -= sizeof(Corrutina *); //decrementa dos posiciones
+    //*((Corrutina**)task_stack) = rutina;
+    *(--task_stack) = GIE; //Se guarda el SR
+    task_stack -= 1; //Me muevo a R3
+    //task_stack -= 1; //Me muevo a R4
+    //*(task_stack) = 0x4444;
+    *(--task_stack) = 0x00; //R15
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R14
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R13
+    //task_stack -= 1;
+    *((void**)task_stack) = parametro;
+    //*(--task_stack) = (uint16_t)parametro; //R12
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R11
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R10
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R9
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R8
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R7
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R6
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R5
+    //task_stack -= 1;
+    *(--task_stack) = 0x00; //R4
 
-   tcb->task_sp = (void *)stack;;
+    /*
+    int reg;
+    for(reg=4; reg<12; reg++)
+    {
+        *(--task_stack) = 0x00;
+    }
+    task_stack -= 1; // Me muevo a R12
+    *((void**)task_stack) = parametro; //Le asigno valor a R12
+
+    for(reg=13; reg<16; reg++)
+    {
+        *(--task_stack) = 0x00;
+    }
+    */
+    tcb->task_sp = task_stack;
 }
