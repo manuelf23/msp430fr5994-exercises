@@ -7,21 +7,39 @@ CMD_SRCS += \
 ../lnk_msp430fr5994.cmd 
 
 C_SRCS += \
-../blink.c 
+../blink.c \
+../corrutinas.c \
+../main.c \
+../toggle.c 
 
 C_DEPS += \
-./blink.d 
+./blink.d \
+./corrutinas.d \
+./main.d \
+./toggle.d 
 
 OBJS += \
-./blink.obj 
+./blink.obj \
+./corrutinas.obj \
+./main.obj \
+./toggle.obj 
 
 OBJS__QUOTED += \
-"blink.obj" 
+"blink.obj" \
+"corrutinas.obj" \
+"main.obj" \
+"toggle.obj" 
 
 C_DEPS__QUOTED += \
-"blink.d" 
+"blink.d" \
+"corrutinas.d" \
+"main.d" \
+"toggle.d" 
 
 C_SRCS__QUOTED += \
-"../blink.c" 
+"../blink.c" \
+"../corrutinas.c" \
+"../main.c" \
+"../toggle.c" 
 
 

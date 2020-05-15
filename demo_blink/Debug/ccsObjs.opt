@@ -1,1 +1,1 @@
-"./blink.obj" "../lnk_msp430fr5994.cmd" -llibmpu_init.a -llibmath.a -llibc.a 
+"./blink.obj" "./corrutinas.obj" "./main.obj" "./toggle.obj" "../lnk_msp430fr5994.cmd" -llibmpu_init.a -llibmath.a -llibc.a 
