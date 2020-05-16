@@ -5,16 +5,20 @@
 #include <rx.h>
 #include <xmodem.h>
 #include <teclado.h>
+#include <corrutinas.h>
+#include <stdint.h>
 
-/**
- * main.c
- */
+#define LONG_STACK_XMODEM        500
+
+Tcb tcb_xmodem, tcb_ppal, tcb_data_process;
+
 timer_control_t tcp;
 datos_control_t dcp;
 rx_control_t rcp;
 dy_control_t dycp;
 xmodem_control_t xmodem;
 teclado_control_t tclp;
+extern Tcb *tcb_actual;
 
 void main(void)
 {
@@ -34,12 +38,16 @@ void main(void)
     xmodem_init(&xmodem, &tcp, &rcp , &dcp);
     teclado_init(&tclp, &tcp, &dcp);
 
+    static uint32_t  stack_xmodem[LONG_STACK_XMODEM]= {0};
+    Inicie_cr(&tcb_xmodem, stack_xmodem + LONG_STACK_XMODEM, xmodem_process, &xmodem);
+
     __bis_SR_register(GIE);     // Enter LPM0 w/ interrupt
 	while(1)
 	{
 	    //Timer_Process(&tcp);
 	    //rx_process(&rcp);
-        xmodem_process(&xmodem);
+        //xmodem_process(&xmodem);
+        Ejecute_cr (&tcb_xmodem);
         datos_process(&dcp);
         display_process(&dycp);
         teclado_process(&tclp);
